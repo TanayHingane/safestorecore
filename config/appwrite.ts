@@ -1,4 +1,4 @@
-import { Client, Databases, Storage, ID } from "appwrite";
+import { Client, Databases, Storage, ID, Query } from "appwrite";
 
 // Initialize Appwrite client
 const client = new Client();
@@ -22,7 +22,7 @@ export const appwriteConfig = {
   storageBucketId: import.meta.env.VITE_APPWRITE_STORAGE_BUCKET_ID || "",
 };
 
-// Export ID helper for generating unique IDs
-export { ID };
+// Export ID helper and Query for generating unique IDs
+export { ID, Query };
 
 export default client;
