@@ -54,6 +54,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({
   const [selectedFile, setSelectedFile] = useState<FileMeta | null>(null);
   const [analyzingFileId, setAnalyzingFileId] = useState<string | null>(null);
   const [totalStorageUsed, setTotalStorageUsed] = useState(0);
+  const hasSeededRef = React.useRef(false);
 
   // Set user ID in storage service when user changes
   useEffect(() => {
@@ -65,11 +66,18 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [user]);
 
   const loadData = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      setIsLoading(false); // 👈 safety reset
+      return;
+    }
 
     setIsLoading(true);
     try {
-      await db.seedDB();
+      if (!hasSeededRef.current) {
+        await db.seedDB();
+        hasSeededRef.current = true;
+      }
+
       const allFiles = await db.getAllFiles();
       const allFolders = await db.getAllFolders();
 
