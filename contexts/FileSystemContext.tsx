@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { FileMeta, FolderMeta } from "../types";
 import * as db from "../services/appwriteStorage";
-import { generateFileSummary } from "../services/gemini";
+
 import { useAuth } from "./AuthContext";
 
 export type SidebarViewMode = "my-drive" | "recent" | "starred" | "trash";
@@ -159,15 +159,6 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({
 
     // Trigger Gemini Analysis automatically
     setAnalyzingFileId(savedFile.id);
-    generateFileSummary(savedFile)
-      .then(async (analysis) => {
-        await db.updateFileMeta(savedFile.id, analysis);
-        loadData(); // Reload to update analysis
-        setAnalyzingFileId(null);
-      })
-      .catch(() => {
-        setAnalyzingFileId(null);
-      });
   };
 
   const createNewFolder = async (name: string) => {
