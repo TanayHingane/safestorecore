@@ -1,0 +1,4 @@
+{
+  "name": "GeminiCloud Drive",
+  "description": "A smart personal file storage solution inspired by cloud drives. Features client-side simulated storage (IndexedDB) for persistence, mock authentication, and powerful Gemini AI integration for file analysis, summarization, and intelligent search."
+}
