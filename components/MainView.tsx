@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useFileSystem } from "../contexts/FileSystemContext";
+
 import {
   Folder,
   FileText,
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 import { FileType, FileMeta } from "../types";
 import { formatSize } from "../utils";
+import { getDownloadUrl } from "@/services/appwriteStorage";
 
 // Separated component to handle Blob URL lifecycle and prevent memory leaks
 const FileCard = ({
@@ -48,21 +50,16 @@ const FileCard = ({
   }, [file]);
 
   const handleDownload = () => {
-    if (inTrash) return; // Disable download in trash
+    if (inTrash) return;
+
+    if (!file.storageFileId) {
+      alert("File content is missing or corrupted. Try re-uploading.");
+      return;
+    }
 
     if (window.confirm(`Do you want to download "${file.name}"?`)) {
-      if (file.blob) {
-        const url = URL.createObjectURL(file.blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = file.name;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      } else {
-        alert("File content is missing or corrupted. Try re-uploading.");
-      }
+      const url = getDownloadUrl(file.storageFileId);
+      window.open(url, "_blank");
     }
   };
 

@@ -1,12 +1,13 @@
 export enum FileType {
-  IMAGE = 'image',
-  TEXT = 'text',
-  CODE = 'code',
-  UNKNOWN = 'unknown'
+  IMAGE = "image",
+  TEXT = "text",
+  CODE = "code",
+  UNKNOWN = "unknown",
 }
 
 export interface FileMeta {
-  id: string;
+  id: string; // DB doc ID = Storage file ID
+  storageFileId: string; // Storage file ID
   name: string;
   type: FileType;
   mimeType: string;
@@ -37,4 +38,4 @@ export interface User {
   avatar: string;
 }
 
-export type ViewMode = 'grid' | 'list';
+export type ViewMode = "grid" | "list";

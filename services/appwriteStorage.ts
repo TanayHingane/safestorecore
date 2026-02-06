@@ -70,6 +70,7 @@ export const saveFile = async (
 
   return {
     id: fileId,
+    storageFileId: fileId, // 🔥 CRITICAL
     name: file.name,
     type: getFileType(file.type),
     mimeType: file.type,
@@ -117,6 +118,7 @@ export const getAllFiles = async (): Promise<FileMeta[]> => {
 
   return response.documents.map((doc: any) => ({
     id: doc.$id,
+    storageFileId: doc.$id, // 🔥 CRITICAL
     name: doc.name,
     type: doc.type,
     mimeType: doc.mimeType,
@@ -157,14 +159,12 @@ export const deleteFile = async (id: string): Promise<void> => {
 };
 
 /**
- * Download file
+ * Get Appwrite download URL (browser-safe)
  */
-export const downloadFile = async (fileId: string): Promise<Blob> => {
-  const result = await storage.getFileDownload(
-    appwriteConfig.storageBucketId,
-    fileId,
-  );
-  return result as unknown as Blob;
+export const getDownloadUrl = (fileId: string): string => {
+  return storage
+    .getFileDownload(appwriteConfig.storageBucketId, fileId)
+    .toString();
 };
 
 /**
