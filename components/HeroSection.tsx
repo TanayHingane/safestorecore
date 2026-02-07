@@ -51,15 +51,19 @@ const HeroSection = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-slide-up"
             style={{ animationDelay: "0.3s" }}
           >
-            <a href="/sign-in">
+            <a href="/sign-up">
               <Button variant="hero" size="xl">
-                Sign In
+                Get Started
                 <ArrowRight className="w-5 h-5" />
               </Button>
             </a>
-            <a href="/sign-up">
+            <a
+              href="https://safebeam03.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Button variant="hero-outline" size="lg">
-                Sign Up Free
+                Share File
               </Button>
             </a>
           </div>

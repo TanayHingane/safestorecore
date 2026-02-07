@@ -27,6 +27,7 @@ interface FileSystemContextType {
   selectedFile: FileMeta | null;
   setSelectedFile: (file: FileMeta | null) => void;
   analyzingFileId: string | null;
+  isUploading: boolean; // New property to indicate file upload in progress
 
   // New properties for sidebar functionality
   currentView: SidebarViewMode;
@@ -52,6 +53,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({
   const [folders, setFolders] = useState<FolderMeta[]>([]);
   const [breadcrumbs, setBreadcrumbs] = useState<FolderMeta[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<FileMeta | null>(null);
   const [analyzingFileId, setAnalyzingFileId] = useState<string | null>(null);
   const [totalStorageUsed, setTotalStorageUsed] = useState(0);
@@ -179,7 +181,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const uploadFile = async (file: File) => {
-    setIsLoading(true);
+    setIsUploading(true); // Set specific uploading state
     const targetFolder = currentView === "my-drive" ? currentFolderId : null;
 
     try {
@@ -192,79 +194,97 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("Failed to upload file", error);
       // Optionally, show an error message to the user
     } finally {
-      setIsLoading(false);
+      setIsUploading(false); // Reset specific uploading state
     }
   };
 
   const createNewFolder = async (name: string) => {
+    setIsLoading(true);
     const targetFolder = currentView === "my-drive" ? currentFolderId : null;
-    const createdFolder = await db.createFolder(name, targetFolder);
-    setFolders((prevFolders) => [...prevFolders, createdFolder]); // Add new folder to state
+    try {
+      const createdFolder = await db.createFolder(name, targetFolder);
+      setFolders((prevFolders) => [...prevFolders, createdFolder]); // Add new folder to state
+    } catch (error) {
+      console.error("Failed to create folder", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const deleteItem = async (id: string, type: "file" | "folder") => {
-    if (currentView === "trash") {
-      // Permanent delete
-      if (type === "file") {
-        setFiles((prevFiles) => prevFiles.filter((file) => file.id !== id));
-        await db.deleteFile(id);
+    setIsLoading(true);
+    try {
+      if (currentView === "trash") {
+        // Permanent delete
+        if (type === "file") {
+          setFiles((prevFiles) => prevFiles.filter((file) => file.id !== id));
+          await db.deleteFile(id);
+        } else {
+          setFolders((prevFolders) =>
+            prevFolders.filter((folder) => folder.id !== id),
+          );
+          await db.deleteFolder(id);
+        }
       } else {
-        setFolders((prevFolders) =>
-          prevFolders.filter((folder) => folder.id !== id),
-        );
-        await db.deleteFolder(id);
+        // Soft delete (Move to Trash)
+        if (type === "file") {
+          setFiles((prevFiles) => prevFiles.filter((file) => file.id !== id));
+          await db.updateFileMeta(id, { isTrashed: true });
+        } else {
+          setFolders((prevFolders) =>
+            prevFolders.filter((folder) => folder.id !== id),
+          );
+          await db.updateFolderMeta(id, { isTrashed: true });
+        }
       }
-    } else {
-      // Soft delete (Move to Trash)
-      if (type === "file") {
-        setFiles((prevFiles) => prevFiles.filter((file) => file.id !== id));
-        await db.updateFileMeta(id, { isTrashed: true });
-      } else {
-        setFolders((prevFolders) =>
-          prevFolders.filter((folder) => folder.id !== id),
-        );
-        await db.updateFolderMeta(id, { isTrashed: true });
-      }
+    } catch (error) {
+      console.error("Failed to delete item", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const restoreItem = async (id: string, type: "file" | "folder") => {
-    if (type === "file") {
-      setFiles((prevFiles) =>
-        prevFiles.map((file) =>
-          file.id === id ? { ...file, isTrashed: false } : file,
-        ),
-      );
-      try {
+    setIsLoading(true);
+    try {
+      if (type === "file") {
+        setFiles((prevFiles) =>
+          prevFiles.map((file) =>
+            file.id === id ? { ...file, isTrashed: false } : file,
+          ),
+        );
         await db.updateFileMeta(id, { isTrashed: false });
-      } catch (error) {
-        console.error("Failed to restore file", error);
+      } else {
+        setFolders((prevFolders) =>
+          prevFolders.map((folder) =>
+            folder.id === id ? { ...folder, isTrashed: false } : folder,
+          ),
+        );
+        await db.updateFolderMeta(id, { isTrashed: false });
+      }
+    } catch (error) {
+      console.error("Failed to restore item", error);
+      // Revert optimistic update if API call fails
+      if (type === "file") {
         setFiles((prevFiles) =>
           prevFiles.map((file) =>
             file.id === id ? { ...file, isTrashed: true } : file,
           ),
         );
-      }
-    } else {
-      setFolders((prevFolders) =>
-        prevFolders.map((folder) =>
-          folder.id === id ? { ...folder, isTrashed: false } : folder,
-        ),
-      );
-      try {
-        await db.updateFolderMeta(id, { isTrashed: false });
-      } catch (error) {
-        console.error("Failed to restore folder", error);
+      } else {
         setFolders((prevFolders) =>
           prevFolders.map((folder) =>
             folder.id === id ? { ...folder, isTrashed: true } : folder,
           ),
         );
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const toggleStar = async (id: string) => {
+    setIsLoading(true);
     // Optimistic UI update
     setFiles((prevFiles) =>
       prevFiles.map((file) =>
@@ -284,6 +304,8 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({
           file.id === id ? { ...file, isStarred: !file.isStarred } : file,
         ),
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -335,6 +357,7 @@ export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({
         toggleStar,
         restoreItem,
         emptyTrash,
+        isUploading,
       }}
     >
       {children}

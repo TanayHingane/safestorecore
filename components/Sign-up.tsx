@@ -40,7 +40,7 @@ export const SignUpUi: React.FC = () => {
           className="text-center lg:text-left text-sm text-muted-foreground animate-fade-in"
           style={{ animationDelay: "0.2s" }}
         >
-          <p>© 2026 SafeStore03. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} SafeStore03. All rights reserved.</p>
         </footer>
       </div>
 

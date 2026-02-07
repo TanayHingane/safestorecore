@@ -26,7 +26,9 @@ const Footer = () => {
             <nav className="flex flex-col space-y-2">
               <FooterLink href="/sign-in">Sign In</FooterLink>
               <FooterLink href="/sign-up">Sign Up</FooterLink>
-              <FooterLink href="#features">Features</FooterLink>
+              <FooterLink href="https://safebeam03.vercel.app/">
+                Share
+              </FooterLink>
             </nav>
           </div>
 
@@ -48,7 +50,7 @@ const Footer = () => {
 
         <div className="border-t border-t-neutral-200  pt-8 ">
           <div className="text-foreground/60 text-center text-sm mb-4 md:mb-0">
-            © {new Date().getFullYear()} SafeBeam. Created by{" "}
+            © {new Date().getFullYear()} SafeStore03. Created by{" "}
             <a
               href={"https://tanayhingane03.vercel.app/"}
               className="hover:underline hover:underline-offset-4 font-semibold"
