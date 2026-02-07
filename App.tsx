@@ -4,7 +4,10 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { FileSystemProvider } from "./contexts/FileSystemContext";
 import { Sidebar } from "./components/Sidebar";
 import { MainView } from "./components/MainView";
-import { Auth } from "./components/Auth";
+import { Route, Routes } from "react-router-dom";
+import Homepage from "./components/HomePage";
+import { SignInUi } from "./components/Sign-in";
+import { SignUpUi } from "./components/Sign-up";
 
 // Import Clerk publishable key
 const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -36,13 +39,13 @@ const Dashboard = () => {
 
   if (!user) {
     console.log("Dashboard - No user, showing Auth");
-    return <Auth />;
+    return <Homepage />;
   }
 
   console.log("Dashboard - User authenticated, showing main app");
   return (
     <FileSystemProvider>
-      <div className="flex h-screen bg-slate-50 overflow-hidden">
+      <div className="flex bg-white h-screen">
         <Sidebar />
         <MainView />
       </div>
@@ -51,12 +54,18 @@ const Dashboard = () => {
 };
 
 const App: React.FC = () => {
-  console.log("App - Rendering with ClerkProvider");
-
   return (
     <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
       <AuthProvider>
-        <Dashboard />
+        <Routes>
+          <Route path="/" element={<Homepage />} />
+          <Route path="/sign-in" element={<SignInUi />} />
+          <Route path="/sign-up" element={<SignUpUi />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+
+          {/* fallback */}
+          <Route path="*" element={<Homepage />} />
+        </Routes>
       </AuthProvider>
     </ClerkProvider>
   );
