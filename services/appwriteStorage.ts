@@ -39,14 +39,7 @@ export const saveFile = async (
     permissions,
   );
 
-  // 2️⃣ Extract text content (if supported)
-  const textContent =
-    file.type.startsWith("text/") ||
-    file.type.includes("json") ||
-    file.type.includes("javascript")
-      ? await file.text()
-      : undefined;
-
+  // 2️⃣ Extract text content (if supported) - REMOVED FOR PERFORMANCE
   // 3️⃣ Save metadata (MATCHES SCHEMA EXACTLY)
   await databases.createDocument(
     appwriteConfig.databaseId,
@@ -61,7 +54,7 @@ export const saveFile = async (
       folderId,
       createdAt: now,
       updatedAt: now,
-      content: textContent,
+      // content: textContent, // REMOVED FOR PERFORMANCE
       isStarred: false,
       isTrashed: false,
     },
@@ -78,7 +71,7 @@ export const saveFile = async (
     folderId,
     createdAt: now,
     updatedAt: now,
-    content: textContent,
+    // content: textContent, // REMOVED FOR PERFORMANCE
     isStarred: false,
     isTrashed: false,
   };
@@ -107,13 +100,21 @@ export const updateFileMeta = async (
 /**
  * Get all files for current user
  */
-export const getAllFiles = async (): Promise<FileMeta[]> => {
+export const queryFiles = async (
+  queries: string[] = [],
+  selectedAttributes: string[] = [],
+): Promise<Partial<FileMeta>[]> => {
   if (!currentUserId) throw new Error("User not authenticated");
+
+  const finalQueries = [...queries, Query.equal("userId", currentUserId)];
+  if (selectedAttributes.length > 0) {
+    finalQueries.push(Query.select(selectedAttributes));
+  }
 
   const response = await databases.listDocuments(
     appwriteConfig.databaseId,
     appwriteConfig.filesCollectionId,
-    [Query.equal("userId", currentUserId)],
+    finalQueries,
   );
 
   return response.documents.map((doc: any) => ({
@@ -139,9 +140,16 @@ export const getAllFiles = async (): Promise<FileMeta[]> => {
  */
 export const getFiles = async (
   folderId: string | null,
-): Promise<FileMeta[]> => {
-  const files = await getAllFiles();
-  return files.filter((f) => f.folderId === folderId);
+  isTrashed: boolean = false,
+  isStarred: boolean = false,
+  selectedAttributes: string[] = [],
+): Promise<Partial<FileMeta>[]> => {
+  const queries = [
+    folderId === null ? Query.isNull("folderId") : Query.equal("folderId", folderId),
+    Query.equal("isTrashed", isTrashed),
+    Query.equal("isStarred", isStarred),
+  ];
+  return queryFiles(queries, selectedAttributes);
 };
 
 /**
@@ -240,13 +248,21 @@ export const updateFolderMeta = async (
 /**
  * Get all folders for current user
  */
-export const getAllFolders = async (): Promise<FolderMeta[]> => {
+export const queryFolders = async (
+  queries: string[] = [],
+  selectedAttributes: string[] = [],
+): Promise<FolderMeta[]> => {
   if (!currentUserId) throw new Error("User not authenticated");
+
+  const finalQueries = [...queries, Query.equal("userId", currentUserId)];
+  if (selectedAttributes.length > 0) {
+    finalQueries.push(Query.select(selectedAttributes));
+  }
 
   const response = await databases.listDocuments(
     appwriteConfig.databaseId,
     appwriteConfig.foldersCollectionId,
-    [Query.equal("userId", currentUserId)],
+    finalQueries,
   );
 
   return response.documents.map((doc: any) => ({
@@ -263,9 +279,16 @@ export const getAllFolders = async (): Promise<FolderMeta[]> => {
  */
 export const getFolders = async (
   parentId: string | null,
+  isTrashed: boolean = false,
+  selectedAttributes: string[] = [],
 ): Promise<FolderMeta[]> => {
-  const folders = await getAllFolders();
-  return folders.filter((f) => f.parentId === parentId);
+  const queries = [
+    parentId === null
+      ? Query.isNull("parentId")
+      : Query.equal("parentId", parentId),
+    Query.equal("isTrashed", isTrashed),
+  ];
+  return queryFolders(queries, selectedAttributes);
 };
 
 /**
