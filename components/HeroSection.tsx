@@ -51,7 +51,7 @@ const HeroSection = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-slide-up"
             style={{ animationDelay: "0.3s" }}
           >
-            <a href="/sign-up">
+            <a href="/sign-in">
               <Button variant="hero" size="xl">
                 Get Started
                 <ArrowRight className="w-5 h-5" />
