@@ -16,6 +16,10 @@ import {
   FolderPlus,
   Check,
   X,
+  Video,
+  Presentation,
+  Music,
+  File,
 } from "lucide-react";
 import { FileType, FileMeta } from "../types";
 import { formatSize } from "../utils";
@@ -69,8 +73,18 @@ const FileCard = ({
         return <Image className="text-purple-500" size={40} />;
       case FileType.CODE:
         return <FileCode className="text-emerald-500" size={40} />;
-      default:
+      case FileType.DOCUMENT:
         return <FileText className="text-blue-500" size={40} />;
+      case FileType.PDF:
+        return <FileText className="text-red-500" size={40} />;
+      case FileType.VIDEO:
+        return <Video className="text-yellow-500" size={40} />;
+      case FileType.PPT:
+        return <Presentation className="text-orange-500" size={40} />;
+      case FileType.AUDIO:
+        return <Music className="text-indigo-500" size={40} />;
+      default:
+        return <File className="text-blue-500" size={40} />;
     }
   };
 

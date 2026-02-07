@@ -10,7 +10,7 @@ export const Sidebar: React.FC = () => {
   const { totalStorageUsed, currentView, changeView, emptyTrash } =
     useFileSystem();
 
-  const maxStorage = 5 * 1024 * 1024 * 1024; // 5GB Mock Limit
+  const maxStorage = 2 * 1024 * 1024 * 1024; // 2GB Mock Limit
   const usedPercentage = Math.min((totalStorageUsed / maxStorage) * 100, 100);
 
   const handleEmptyTrash = async () => {
@@ -100,7 +100,7 @@ export const Sidebar: React.FC = () => {
               ></div>
             </div>
             <p className="mt-2 text-xs text-slate-500">
-              {formatSize(totalStorageUsed)} of 5 GB used
+              {formatSize(totalStorageUsed)} of 2 GB used
             </p>
           </div>
         </div>

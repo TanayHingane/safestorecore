@@ -2,6 +2,11 @@ export enum FileType {
   IMAGE = "image",
   TEXT = "text",
   CODE = "code",
+  PDF = "pdf",
+  DOCUMENT = "document",
+  VIDEO = "video",
+  PPT = "ppt",
+  AUDIO = "audio",
   UNKNOWN = "unknown",
 }
 
