@@ -55,15 +55,19 @@ const Dashboard = () => {
 
 const App: React.FC = () => {
   return (
-    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+    <ClerkProvider
+      publishableKey={CLERK_PUBLISHABLE_KEY}
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
+      afterSignInUrl="/dashboard"
+      afterSignUpUrl="/dashboard"
+    >
       <AuthProvider>
         <Routes>
           <Route path="/" element={<Homepage />} />
           <Route path="/sign-in" element={<SignInUi />} />
           <Route path="/sign-up" element={<SignUpUi />} />
           <Route path="/dashboard" element={<Dashboard />} />
-
-          {/* fallback */}
           <Route path="*" element={<Homepage />} />
         </Routes>
       </AuthProvider>
