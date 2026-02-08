@@ -83,12 +83,16 @@ const Header = () => {
                 How It Works
               </a>
               <div className="flex flex-col gap-2 pt-4">
-                <Button variant="ghost" className="w-full justify-center">
-                  Log In
-                </Button>
-                <Button variant="hero" className="w-full justify-center">
-                  Sign Up Free
-                </Button>
+                <a href="/sign-in">
+                  <Button variant="ghost" className="w-full justify-center">
+                    Sign In
+                  </Button>
+                </a>
+                <a href="/sign-up">
+                  <Button variant="hero" className="w-full justify-center">
+                    Sign Up Free
+                  </Button>
+                </a>
               </div>
             </nav>
           </div>
