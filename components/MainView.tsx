@@ -94,7 +94,7 @@ const FileCard = ({
       className={`group relative bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all hover:shadow-lg hover:border-indigo-300 ${inTrash ? "opacity-75 grayscale" : "cursor-pointer"}`}
     >
       {/* Preview Area */}
-      <div className="h-40 bg-slate-50 flex items-center justify-center p-4 border-b border-slate-100 group-hover:bg-slate-100 transition-colors relative">
+      <div className="h-32 md:h-40 bg-slate-50 flex items-center justify-center p-4 border-b border-slate-100 group-hover:bg-slate-100 transition-colors relative">
         {file.type === FileType.IMAGE && previewUrl ? (
           <img
             src={previewUrl}
@@ -107,7 +107,7 @@ const FileCard = ({
 
         {/* Overlay Download Icon on Hover (Only if not in trash) */}
         {!inTrash && (
-          <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+          <div className="absolute inset-0 bg-black/5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
             <div className="bg-white/90 p-2 rounded-full shadow-sm text-indigo-600">
               <Download size={24} />
             </div>
@@ -321,7 +321,13 @@ export const MainView: React.FC = () => {
       onDrop={handleDrop}
     >
       {/* Header / Toolbar */}
-      <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between shadow-sm">
+      <div
+        className="sticky top-0 z-10 bg-white border-b border-slate-200 
+                px-4 md:px-8 py-3 md:py-4 
+                flex flex-col md:flex-row 
+                md:items-center gap-3 md:gap-0 
+                justify-between shadow-sm"
+      >
         <div className="flex items-center space-x-2 text-lg text-slate-600">
           {currentView === "my-drive" && (
             <button
@@ -337,7 +343,7 @@ export const MainView: React.FC = () => {
           <span className="font-semibold text-slate-900">{getViewTitle()}</span>
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-2 flex-wrap md:flex-nowrap w-full md:w-auto">
           <div className="relative">
             <Search
               className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
@@ -406,7 +412,7 @@ export const MainView: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="p-8 flex-1">
+      <div className="p-4 md:p-8 flex-1 pb-24 md:pb-8">
         {/*
           Removed local loading spinner.
           Loading is now handled by FileSystemLoader in App.tsx
@@ -419,7 +425,7 @@ export const MainView: React.FC = () => {
                 <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">
                   Folders
                 </h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                   {filteredFolders.map((folder) => (
                     <div
                       key={folder.id}
@@ -495,7 +501,10 @@ export const MainView: React.FC = () => {
                   )}
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                <div
+                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 
+                gap-x-4 gap-y-6 md:gap-6"
+                >
                   {filteredFiles.map((file) => (
                     <FileCard
                       key={file.id}

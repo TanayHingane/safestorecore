@@ -1,13 +1,17 @@
 import React from "react";
 import { ClerkProvider } from "@clerk/clerk-react";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { FileSystemProvider, useFileSystem } from "./contexts/FileSystemContext";
+import {
+  FileSystemProvider,
+  useFileSystem,
+} from "./contexts/FileSystemContext";
 import { Sidebar } from "./components/Sidebar";
 import { MainView } from "./components/MainView";
 import { Route, Routes } from "react-router-dom";
 import Homepage from "./components/HomePage";
 import { SignInUi } from "./components/Sign-in";
 import { SignUpUi } from "./components/Sign-up";
+import { MobileBottomNav } from "./components/MobileBottomNav";
 
 // Import Clerk publishable key
 const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -26,19 +30,31 @@ const Dashboard = () => {
 
   console.log("Dashboard - Loading:", isAuthLoading, "User:", user?.email);
 
-  if (!user && !isAuthLoading) { // Only show homepage if no user AND not loading auth
+  if (!user && !isAuthLoading) {
+    // Only show homepage if no user AND not loading auth
     console.log("Dashboard - No user and not loading auth, showing Auth");
     return <Homepage />;
   }
 
-  console.log("Dashboard - User authenticated or auth loading, showing main app");
+  console.log(
+    "Dashboard - User authenticated or auth loading, showing main app",
+  );
   return (
     <FileSystemProvider>
       {/* Pass isAuthLoading to FileSystemLoader to consolidate loading states */}
       <FileSystemLoader isAuthLoading={isAuthLoading} />
-      <div className="flex bg-white h-screen">
-        <Sidebar />
+      <div className="flex bg-white h-screen overflow-hidden">
+        {/* Desktop Sidebar */}
+        <div className="hidden md:block">
+          <Sidebar />
+        </div>
+
+        {/* Main content */}
         <MainView />
+        {/* Mobile Bottom Navigation */}
+        <div className="md:hidden">
+          <MobileBottomNav />
+        </div>
       </div>
     </FileSystemProvider>
   );
@@ -52,7 +68,11 @@ const FileSystemLoader = ({ isAuthLoading }: { isAuthLoading: boolean }) => {
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
         <div className="text-white text-lg">
-          {isAuthLoading ? "Authenticating..." : isUploading ? "Uploading files..." : "Loading data..."}
+          {isAuthLoading
+            ? "Authenticating..."
+            : isUploading
+              ? "Uploading files..."
+              : "Loading data..."}
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mt-2"></div>
         </div>
       </div>
